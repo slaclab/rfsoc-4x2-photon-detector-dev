@@ -1,0 +1,3 @@
+[submodule "firmware/submodules/ruckus"]
+	path = firmware/submodules/ruckus
+	url = git@github.com:slaclab/ruckus
