@@ -13,7 +13,7 @@ Due to the 10MHz low frequency roll off of the balums on the RFSoC 4x2, we remov
 and installed a differential twinax cable for the loopback to decrease the low frequnecy 
 cutoff as low as reasonably possible. 
 
-<img src="docs/images/LoopbackRework.png" width="200">
+<img src="docs/images/LoopbackRework.jpg" width="200">
 
 <!--- ######################################################## -->
 
