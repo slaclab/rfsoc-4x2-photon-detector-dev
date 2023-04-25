@@ -1,9 +1,9 @@
 #-----------------------------------------------------------------------------
-# This file is part of the 'Simple-rfsoc-4x2-Example'. It is subject to
+# This file is part of the 'rfsoc-4x2-photon-detector-dev'. It is subject to
 # the license terms in the LICENSE.txt file found in the top-level directory
 # of this distribution and at:
 #    https://confluence.slac.stanford.edu/display/ppareg/LICENSE.html.
-# No part of the 'Simple-rfsoc-4x2-Example', including this file, may be
+# No part of the 'rfsoc-4x2-photon-detector-dev', including this file, may be
 # copied, modified, propagated, or distributed except according to the terms
 # contained in the LICENSE.txt file.
 #-----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ class Root(pr.Root):
         super().__init__(**kwargs)
 
         # Local Variables
-        self.epics_prefix = epics_prefix 
+        self.epics_prefix = epics_prefix
         self.top_level    = top_level
         if self.top_level != '':
             self.defaultFile = f'{top_level}/{defaultFile}'
@@ -97,13 +97,13 @@ class Root(pr.Root):
         else:
             self.ringBufferAdc = [rogue.hardware.axi.AxiStreamDma('/dev/axi_stream_dma_0', i+0,  True) for i in range(1)]
             self.ringBufferDac = [rogue.hardware.axi.AxiStreamDma('/dev/axi_stream_dma_0', 16+i, True) for i in range(1)]
- 
+
         self.adcRateDrop   = [stream.RateDrop(True,1.0) for i in range(1)]
         self.dacRateDrop   = [stream.RateDrop(True,1.0) for i in range(1)]
-       
+
         self.adcProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'AdcProcessor[{i}]',sampleRate=2.0E+9,maxSize=4*2**12)  for i in range(1)]
         self.dacProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'DacProcessor[{i}]',sampleRate=8.0E+9,maxSize=16*2**12) for i in range(1)]
-       
+
         self.pvAdc = [rfsoc_utility.RingBufferProcessor(name=f'PvAdc[{i}]',sampleRate=2.0E+9,maxSize=4*2**12, liveDisplay=False) for i in range(1)]
         self.pvDac = [rfsoc_utility.RingBufferProcessor(name=f'PvDac[{i}]',sampleRate=8.0E+9,maxSize=16*2**12,liveDisplay=False) for i in range(1)]
 
@@ -137,7 +137,7 @@ class Root(pr.Root):
             # General application variables
             'Root.RFSoC.Application.EnableSoftTrig'  : f'{epics_prefix}:Root:RFSoC:Application:EnableSoftTrig',
             'Root.RFSoC.Application.StartDacFlag'    : f'{epics_prefix}:Root:RFSoC:Application:StartDacFlag',
-            
+
             # DAC SiPM Waveform Loader
             'Root.RFSoC.Application.SigGenLoader.Amplitude'    : f'{epics_prefix}:Root:RFSoC:Application:SigGenLoader:Amplitude',
             'Root.RFSoC.Application.SigGenLoader.Decay'        : f'{epics_prefix}:Root:RFSoC:Application:SigGenLoader:Decay',

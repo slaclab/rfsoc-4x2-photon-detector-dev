@@ -67,11 +67,11 @@ architecture mapping of Application is
 
    signal adc : slv(63 downto 0)  := (others => '0');
    signal dac : slv(255 downto 0) := (others => '0');
-   
-   signal startDacStrb : sl; 
-   
+
+   signal startDacStrb : sl;
+
    signal writeReg : slv(31 downto 0) := (others => '0');
-   signal readReg  : slv(31 downto 0) := (others => '0');   
+   signal readReg  : slv(31 downto 0) := (others => '0');
 
 begin
 

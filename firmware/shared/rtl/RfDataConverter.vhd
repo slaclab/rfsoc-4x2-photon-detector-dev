@@ -117,7 +117,7 @@ begin
 
    U_IpCore : RfDataConverterIpCore
       port map (
-         -- Clock Ports         
+         -- Clock Ports
          adc2_clk_p      => adcClkP(1),
          adc2_clk_n      => adcClkN(1),
          clk_adc2        => open,
