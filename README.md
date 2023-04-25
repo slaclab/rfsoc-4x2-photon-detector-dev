@@ -1,7 +1,7 @@
 # rfsoc-4x2-photon-detector-dev
 
-The project is an example of emulating the SiPM signal using a DAC.  
-The DAC output is loopback to the ADC.  
+This project is an example of emulating the SiPM signal using a RFSOC DAC and reading it back from the RFSoC ADC
+The DAC[A] output is loopbacked to the ADC[A].  
 The DAC is operating at 8 GSample/s, and the ADC is operating at 2 GSample/s.
 
 Only ADC[A] and DAC[A] is implemented in the firmware.  ADC[B,C,D] and DAC[B] are unused.
@@ -123,7 +123,7 @@ sudo umount boot
 
 ```bash
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "10.0.0.10" # https://jira.slac.stanford.edu/browse/ESRFOC-54
-scp Rfsoc4x2PhotonDetectorDev-0x01000000-20220204204648-ruckman-90df89c.bit root@10.0.0.10:/media/sd-mmcblk0p1/system.bit
+scp Rfsoc4x2PhotonDetectorDev-0x01000000-20220204204648-ruckman-90df89c.bit root@10.0.0.10:/media/boot/system.bit
 ```
 
 2) Send a "sync" and "reboot" command to the RFSoC to load new firmware:  Here's an example:
