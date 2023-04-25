@@ -1,0 +1,28 @@
+Root:
+  PvAdc[:]:
+    RxEnable: True
+  PvDac[:]:
+    RxEnable: True      
+  RFSoC:
+    enable: True
+    Application:
+      AppRingBuffer:
+        Adc:
+          Ch[:]:
+            TrigBurst: 0x0
+            ContinuousMode: 0x0
+        Dac:
+          Ch[:]:
+            TrigBurst: 0x0
+            ContinuousMode: 0x0
+      DacSigGen:
+        enable: True
+        Enabled: 0x1
+        Continuous: 0x0
+        BufferLength: 0xFFF
+      SigGenLoader:
+        enable: True
+        Amplitude: '[25000, 0, 0, 0]'
+        Decay: '[100e-09, 100e-09, 100e-09, 100e-09]'
+        Rise: '[10e-09, 10e-09, 10e-09, 10e-09]'
+        IncidentTime: '[4e-06, 4.25e-06, 6e-06, 7e-06]'
