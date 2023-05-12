@@ -59,7 +59,8 @@ class SigGenLoader(pr.Device):
             value   = np.full(shape=maxEvents, fill_value=4.0E-6, dtype=np.float32, order='C'),
         ))
 
-        @self.command(hidden=True)
+        # @self.command(hidden=True)
+        @self.command()
         def LoadWaveform():
 
             # Zero out the array
