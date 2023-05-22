@@ -103,3 +103,6 @@ class SigGenLoader(pr.Device):
 
             # Push all shadow variables to hardware
             self._DacSigGen.Waveform[0].write()
+
+            # Reset the FSM after loading the waveform
+            self._DacSigGen.Reset()
