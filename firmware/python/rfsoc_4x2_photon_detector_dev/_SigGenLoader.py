@@ -18,8 +18,8 @@ class SigGenLoader(pr.Device):
             DacSigGen    = None,
             maxEvents    = 4,  # Max number of signal event that can be loaded
             ramWidth     = 12, # Must match RAM_ADDR_WIDTH_G config
-            smplPerCycle = 16, # Must match SAMPLE_PER_CYCLE_G config
-            sampleRate   = 8.0E+9, # Units of Hz
+            smplPerCycle = 8, # Must match SAMPLE_PER_CYCLE_G config
+            sampleRate   = 2.032E+9, # Units of Hz
         **kwargs):
         super().__init__(**kwargs)
 

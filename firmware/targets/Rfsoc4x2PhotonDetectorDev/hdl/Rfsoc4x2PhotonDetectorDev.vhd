@@ -81,8 +81,8 @@ architecture top_level of Rfsoc4x2PhotonDetectorDev is
 
    signal dspClk : sl;
    signal dspRst : sl;
-   signal dspAdc : slv(63 downto 0);
-   signal dspDac : slv(255 downto 0);
+   signal dspAdc : slv(127 downto 0);
+   signal dspDac : slv(127 downto 0);
 
 begin
 

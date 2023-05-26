@@ -96,11 +96,11 @@ class Root(pr.Root):
         self.adcRateDrop   = [stream.RateDrop(True,1.0) for i in range(1)]
         self.dacRateDrop   = [stream.RateDrop(True,1.0) for i in range(1)]
 
-        self.adcProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'AdcProcessor[{i}]',sampleRate=2.0E+9,maxSize=4*2**12)  for i in range(1)]
-        self.dacProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'DacProcessor[{i}]',sampleRate=8.0E+9,maxSize=16*2**12) for i in range(1)]
+        self.adcProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'AdcProcessor[{i}]',sampleRate=2.032E+9,maxSize=8*2**12) for i in range(1)]
+        self.dacProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'DacProcessor[{i}]',sampleRate=2.032E+9,maxSize=8*2**12) for i in range(1)]
 
-        self.pvAdc = [rfsoc_utility.RingBufferProcessor(name=f'PvAdc[{i}]',sampleRate=2.0E+9,maxSize=4*2**12, liveDisplay=False) for i in range(1)]
-        self.pvDac = [rfsoc_utility.RingBufferProcessor(name=f'PvDac[{i}]',sampleRate=8.0E+9,maxSize=16*2**12,liveDisplay=False) for i in range(1)]
+        self.pvAdc = [rfsoc_utility.RingBufferProcessor(name=f'PvAdc[{i}]',sampleRate=2.032E+9,maxSize=8*2**12, liveDisplay=False) for i in range(1)]
+        self.pvDac = [rfsoc_utility.RingBufferProcessor(name=f'PvDac[{i}]',sampleRate=2.032E+9,maxSize=8*2**12,liveDisplay=False) for i in range(1)]
 
         # Connect the rogue stream arrays: ADC Ring Buffer Path
         for i in range(1):
