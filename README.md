@@ -2,7 +2,7 @@
 
 This project is an example of emulating the SiPM signal using a RFSOC DAC and reading it back from the RFSoC ADC.
 The DAC[A] output is loopbacked to the ADC[A].
-The DAC is operating at 8 GSample/s, and the ADC is operating at 2 GSample/s.
+The DAC is operating at 8.128 GSample/s, and the ADC is operating at 2.032 GSample/s.
 
 Only ADC[A] and DAC[A] is implemented in the firmware.  ADC[B,C,D] and DAC[B] are unused.
 
