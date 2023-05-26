@@ -1,8 +1,4 @@
 Root:
-  PvAdc[:]:
-    RxEnable: True
-  PvDac[:]:
-    RxEnable: True      
   RFSoC:
     enable: True
     Application:
@@ -19,10 +15,10 @@ Root:
         enable: True
         Enabled: 0x1
         Continuous: 0x0
-        BufferLength: 0xFFF
+        BufferLength: 0x1FF
       SigGenLoader:
         enable: True
         Amplitude: '[25000, 0, 0, 0]'
-        Decay: '[100e-09, 100e-09, 100e-09, 100e-09]'
-        Rise: '[10e-09, 10e-09, 10e-09, 10e-09]'
-        IncidentTime: '[4e-06, 4.25e-06, 6e-06, 7e-06]'
+        Decay: '[20e-09, 20e-09, 20e-09, 20e-09]'
+        Rise:  '[10e-09, 10e-09, 10e-09, 10e-09]'
+        IncidentTime: '[10e-09, 200e-09, 250e-09, 500e-09]'

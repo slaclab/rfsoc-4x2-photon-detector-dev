@@ -51,7 +51,7 @@ end Rfsoc4x2PhotonDetectorDev;
 
 architecture top_level of Rfsoc4x2PhotonDetectorDev is
 
-   constant HW_INDEX_C   : natural := 0; -- Unused
+   constant HW_INDEX_C   : natural := 0;  -- Unused
    constant RFDC_INDEX_C : natural := 1;
    constant APP_INDEX_C  : natural := 2;
 
@@ -81,8 +81,8 @@ architecture top_level of Rfsoc4x2PhotonDetectorDev is
 
    signal dspClk : sl;
    signal dspRst : sl;
-   signal dspAdc : slv(127 downto 0);
-   signal dspDac : slv(127 downto 0);
+   signal dspAdc : slv(63 downto 0);
+   signal dspDac : slv(255 downto 0);
 
 begin
 

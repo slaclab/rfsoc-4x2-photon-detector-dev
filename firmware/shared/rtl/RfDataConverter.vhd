@@ -46,8 +46,8 @@ entity RfDataConverter is
       -- ADC/DAC Interface (dspClk domain)
       dspClk          : out sl;
       dspRst          : out sl;
-      dspAdc          : out slv(127 downto 0);
-      dspDac          : in  slv(127 downto 0);
+      dspAdc          : out slv(63 downto 0);
+      dspDac          : in  slv(255 downto 0);
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -95,7 +95,7 @@ architecture mapping of RfDataConverter is
          vout20_n        : out std_logic;
          m2_axis_aresetn : in  std_logic;
          m2_axis_aclk    : in  std_logic;
-         m22_axis_tdata  : out std_logic_vector(127 downto 0);
+         m22_axis_tdata  : out std_logic_vector(63 downto 0);
          m22_axis_tvalid : out std_logic;
          m22_axis_tready : in  std_logic;
          s2_axis_aresetn : in  std_logic;
@@ -106,19 +106,12 @@ architecture mapping of RfDataConverter is
          );
    end component;
 
-   signal refAdcClk : sl := '0';
-   signal refDacClk : sl := '0';
-   signal axilRstL  : sl := '0';
+   signal refClk   : sl := '0';
+   signal axilRstL : sl := '0';
 
-   signal dspClk127  : sl := '0';
-   signal dspRst127  : sl := '1';
-   signal dspRst127L : sl := '0';
-
-   signal dspClk254  : sl := '0';
-   signal dspRst254  : sl := '1';
-   signal dspRst254L : sl := '0';
-
-   signal dacDac : slv(255 downto 0);
+   signal dspClk508  : sl := '0';
+   signal dspRst508  : sl := '1';
+   signal dspRst508L : sl := '0';
 
 begin
 
@@ -127,10 +120,10 @@ begin
          -- Clock Ports
          adc2_clk_p      => adcClkP(1),
          adc2_clk_n      => adcClkN(1),
-         clk_adc2        => refAdcClk,
+         clk_adc2        => open,
          dac2_clk_p      => dacClkP(1),
          dac2_clk_n      => dacClkN(1),
-         clk_dac2        => refDacClk,
+         clk_dac2        => refClk,
          -- AXI-Lite Ports
          s_axi_aclk      => axilClk,
          s_axi_aresetn   => axilRstL,
@@ -162,42 +155,19 @@ begin
          vout20_p        => dacP(1),
          vout20_n        => dacN(1),
          -- ADC AXI Stream Interface
-         m2_axis_aresetn => dspRst254L,
-         m2_axis_aclk    => dspClk254,
+         m2_axis_aresetn => dspRst508L,
+         m2_axis_aclk    => dspClk508,
          m22_axis_tdata  => dspAdc,
          m22_axis_tvalid => open,
          m22_axis_tready => '1',
          -- DAC AXI Stream Interface
-         s2_axis_aresetn => dspRst127L,
-         s2_axis_aclk    => dspClk127,
-         s20_axis_tdata  => dacDac,
+         s2_axis_aresetn => dspRst508L,
+         s2_axis_aclk    => dspClk508,
+         s20_axis_tdata  => dspDac,
          s20_axis_tvalid => '1',
          s20_axis_tready => open);
 
-   U_Gearbox : entity surf.AsyncGearbox
-      generic map (
-         TPD_G              => TPD_G,
-         SLAVE_WIDTH_G      => 128,
-         MASTER_WIDTH_G     => 256,
-         EN_EXT_CTRL_G      => false,
-         -- Async FIFO generics
-         FIFO_MEMORY_TYPE_G => "block",
-         FIFO_ADDR_WIDTH_G  => 8)
-      port map (
-         -- Slave Interface
-         slaveClk    => dspClk254,
-         slaveRst    => dspRst254,
-         slaveData   => dspDac,
-         slaveValid  => '1',
-         slaveReady  => open,
-         -- Master Interface
-         masterClk   => dspClk127,
-         masterRst   => dspRst127,
-         masterData  => dacDac,
-         masterValid => open,
-         masterReady => '1');
-
-   U_Adc_Pll : entity surf.ClockManagerUltraScale
+   U_Pll : entity surf.ClockManagerUltraScale
       generic map(
          TPD_G             => TPD_G,
          TYPE_G            => "PLL",
@@ -206,38 +176,17 @@ begin
          RST_IN_POLARITY_G => '1',
          NUM_CLOCKS_G      => 1,
          -- MMCM attributes
-         CLKIN_PERIOD_G    => 7.874,    -- 127 MHz
-         CLKFBOUT_MULT_G   => 10,       -- 1.27 GHz = 10 x 127 MHz
-         CLKOUT0_DIVIDE_G  => 5)        -- 254 MHz = 1.27GHz/5
+         CLKIN_PERIOD_G    => 1.968,    -- 508 MHz
+         CLKFBOUT_MULT_G   => 2,        -- 1016 MHz = 2 x 508 MHz
+         CLKOUT0_DIVIDE_G  => 2)        -- 508 MHz = 1016 MHz / 2
       port map(
          -- Clock Input
-         clkIn     => refAdcClk,
+         clkIn     => refClk,
          rstIn     => axilRst,
          -- Clock Outputs
-         clkOut(0) => dspClk254,
+         clkOut(0) => dspClk508,
          -- Reset Outputs
-         rstOut(0) => dspRst254);
-
-   U_Dac_Pll : entity surf.ClockManagerUltraScale
-      generic map(
-         TPD_G             => TPD_G,
-         TYPE_G            => "PLL",
-         INPUT_BUFG_G      => false,
-         FB_BUFG_G         => true,
-         RST_IN_POLARITY_G => '1',
-         NUM_CLOCKS_G      => 1,
-         -- MMCM attributes
-         CLKIN_PERIOD_G    => 7.874,    -- 127 MHz
-         CLKFBOUT_MULT_G   => 10,       -- 1.27 GHz = 10 x 127 MHz
-         CLKOUT0_DIVIDE_G  => 10)       -- 127 MHz = 1.27GHz/10
-      port map(
-         -- Clock Input
-         clkIn     => refDacClk,
-         rstIn     => axilRst,
-         -- Clock Outputs
-         clkOut(0) => dspClk127,
-         -- Reset Outputs
-         rstOut(0) => dspRst127);
+         rstOut(0) => dspRst508);
 
    U_axilRstL : entity surf.RstPipeline
       generic map(
@@ -248,31 +197,22 @@ begin
          rstIn  => axilRst,
          rstOut => axilRstL);
 
-   U_dspRst127L : entity surf.RstPipeline
+   U_dspRst508L : entity surf.RstPipeline
       generic map(
          TPD_G     => TPD_G,
          INV_RST_G => true)             -- Invert RESET
       port map(
-         clk    => dspClk127,
-         rstIn  => dspRst127,
-         rstOut => dspRst127L);
+         clk    => dspClk508,
+         rstIn  => dspRst508,
+         rstOut => dspRst508L);
 
-   U_dspRst254L : entity surf.RstPipeline
-      generic map(
-         TPD_G     => TPD_G,
-         INV_RST_G => true)             -- Invert RESET
-      port map(
-         clk    => dspClk254,
-         rstIn  => dspRst254,
-         rstOut => dspRst254L);
-
-   dspClk <= dspClk254;
+   dspClk <= dspClk508;
    U_dspRst : entity surf.RstPipeline
       generic map(
          TPD_G => TPD_G)
       port map(
-         clk    => dspClk254,
-         rstIn  => dspRst254,
+         clk    => dspClk508,
+         rstIn  => dspRst508,
          rstOut => dspRst);
 
 end mapping;

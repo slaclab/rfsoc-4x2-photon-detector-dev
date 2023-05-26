@@ -28,7 +28,7 @@ class Application(pr.Device):
             name         = 'DacSigGen',
             offset       = 0x01_000000,
             numCh        = 1,  # Must match NUM_CH_G config
-            ramWidth     = 12, # Must match RAM_ADDR_WIDTH_G config
+            ramWidth     = 9,  # Must match RAM_ADDR_WIDTH_G config
             smplPerCycle = 16, # Must match SAMPLE_PER_CYCLE_G config
             # expand       = True,
         ))
@@ -68,12 +68,3 @@ class Application(pr.Device):
             hidden       = True,
         ))
 
-        # self.add(rfsoc_utility.SigGenLoader(
-            # name         = 'SineWaveSigGenLoader',
-            # DacSigGen    = self.DacSigGen,
-            # numCh        = 1,  # Must match NUM_CH_G config
-            # ramWidth     = 12, # Must match RAM_ADDR_WIDTH_G config
-            # smplPerCycle = 16, # Must match SAMPLE_PER_CYCLE_G config
-            # sampleRate   = 8.0E+9, # Units of Hz
-            # expand       = True,
-        # ))

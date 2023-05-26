@@ -40,8 +40,8 @@ entity Application is
       -- ADC/DAC Interface (dspClk domain)
       dspClk          : in  sl;
       dspRst          : in  sl;
-      dspAdc          : in  slv(127 downto 0);
-      dspDac          : out slv(127 downto 0);
+      dspAdc          : in  slv(63 downto 0);
+      dspDac          : out slv(255 downto 0);
       -- AXI-Lite Interface (axilClk domain)
       axilClk         : in  sl;
       axilRst         : in  sl;
@@ -65,8 +65,8 @@ architecture mapping of Application is
    signal axilWriteMasters : AxiLiteWriteMasterArray(NUM_AXIL_MASTERS_C-1 downto 0);
    signal axilWriteSlaves  : AxiLiteWriteSlaveArray(NUM_AXIL_MASTERS_C-1 downto 0) := (others => AXI_LITE_WRITE_SLAVE_EMPTY_DECERR_C);
 
-   signal adc : slv(127 downto 0) := (others => '0');
-   signal dac : slv(127 downto 0) := (others => '0');
+   signal adc : slv(63 downto 0)  := (others => '0');
+   signal dac : slv(255 downto 0) := (others => '0');
 
    signal startDacStrb : sl;
 
@@ -109,9 +109,9 @@ begin
          EN_DAC_BUFF_G          => true,
          NUM_ADC_CH_G           => 1,
          NUM_DAC_CH_G           => 1,
-         ADC_SAMPLE_PER_CYCLE_G => 8,
-         DAC_SAMPLE_PER_CYCLE_G => 8,
-         RAM_ADDR_WIDTH_G       => 12,
+         ADC_SAMPLE_PER_CYCLE_G => 4,
+         DAC_SAMPLE_PER_CYCLE_G => 16,
+         RAM_ADDR_WIDTH_G       => 9,
          AXIL_BASE_ADDR_G       => AXIL_CONFIG_C(RING_INDEX_C).baseAddr)
       port map (
          -- DMA Interface (dmaClk domain)
@@ -137,8 +137,8 @@ begin
       generic map (
          TPD_G              => TPD_G,
          NUM_CH_G           => 1,
-         SAMPLE_PER_CYCLE_G => 8,
-         RAM_ADDR_WIDTH_G   => 12,
+         SAMPLE_PER_CYCLE_G => 16,
+         RAM_ADDR_WIDTH_G   => 9,
          AXIL_BASE_ADDR_G   => AXIL_CONFIG_C(DAC_SIG_INDEX_C).baseAddr)
       port map (
          -- DAC Interface (dspClk domain)

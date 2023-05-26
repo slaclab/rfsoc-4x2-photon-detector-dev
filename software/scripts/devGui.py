@@ -25,9 +25,6 @@ if __name__ == "__main__":
     # Set the argument parser
     parser = argparse.ArgumentParser()
 
-    # Convert str to bool
-    argBool = lambda s: s.lower() in ['true', 't', 'yes', '1']
-
     # Add arguments
     parser.add_argument(
         "--ip",
@@ -38,32 +35,17 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--pollEn",
-        type     = argBool,
-        required = False,
-        default  = True,
-        help     = "Enable auto-polling",
-    )
-
-    parser.add_argument(
-        "--initRead",
-        type     = argBool,
-        required = False,
-        default  = True,
-        help     = "Enable read all variables at start",
-    )
-
-    parser.add_argument(
         "--defaultFile",
         type     = str,
         required = False,
-        # default  = None,
         default  = 'config/defaults.yml',
         help     = "Sets the default YAML configuration file to be loaded at the root.start()",
     )
 
     # Get the arguments
     args = parser.parse_args()
+
+    #################################################################
 
     top_level = os.path.realpath(__file__).split('software')[0]
     ui = top_level+'firmware/submodules/axi-soc-ultra-plus-core/python/axi_soc_ultra_plus_core/rfsoc_utility/gui/GuiTop.py'
@@ -72,8 +54,6 @@ if __name__ == "__main__":
 
     with rfsoc_4x2_photon_detector_dev.Root(
         ip          = args.ip,
-        pollEn      = args.pollEn,
-        initRead    = args.initRead,
         defaultFile = args.defaultFile,
     ) as root:
         axi_soc_ultra_plus_core.rfsoc_utility.pydm.runPyDM(
