@@ -31,6 +31,7 @@ rogue.Version.minVersion('5.18.4')
 class Root(pr.Root):
     def __init__(self,
                  ip           = '10.0.0.10', # ETH Host Name (or IP address)
+                 top_level    = '',
                  defaultFile  = 'config/defaults.yml',
                  lmkConfig    = 'config/lmk/HexRegisterValues.txt',
                  lmxConfig    = 'config/lmx/HexRegisterValues.txt',
@@ -44,9 +45,15 @@ class Root(pr.Root):
         # Local Variables
         self.epics_enable = epics_enable
         self.epics_prefix = epics_prefix
-        self.defaultFile  = defaultFile
-        self.lmkConfig    = lmkConfig
-        self.lmxConfig    = lmxConfig
+        self.top_level    = top_level
+        if self.top_level != '':
+            self.defaultFile = f'{top_level}/{defaultFile}'
+            self.lmkConfig   = f'{top_level}/{lmkConfig}'
+            self.lmxConfig   = f'{top_level}/{lmxConfig}'
+        else:
+            self.defaultFile = defaultFile
+            self.lmkConfig   = lmkConfig
+            self.lmxConfig   = lmxConfig
 
         # File writer
         self.dataWriter = pr.utilities.fileio.StreamWriter()
@@ -72,6 +79,7 @@ class Root(pr.Root):
         self.add(rfsoc.RFSoC(
             memBase    = self.memMap,
             offset     = 0x04_0000_0000, # Full 40-bit address space
+            top_level  = self.top_level,
             expand     = True,
         ))
 
@@ -89,33 +97,31 @@ class Root(pr.Root):
         self.adcProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'AdcProcessor[{i}]',sampleRate=2.032E+9,maxSize=4*2**9)  for i in range(1)]
         self.dacProcessor  = [rfsoc_utility.RingBufferProcessor(name=f'DacProcessor[{i}]',sampleRate=8.128E+9,maxSize=16*2**9) for i in range(1)]
 
-        # Connect the rogue stream arrays: ADC Ring Buffer Path
+        self.pvAdc = [rfsoc_utility.RingBufferProcessor(name=f'PvAdc[{i}]',sampleRate=2.032E+9,maxSize=4*2**9, liveDisplay=False) for i in range(1)]
+        self.pvDac = [rfsoc_utility.RingBufferProcessor(name=f'PvDac[{i}]',sampleRate=8.128E+9,maxSize=16*2**9,liveDisplay=False) for i in range(1)]
+
+        # Connect the rogue stream arrays: ADC/DAC Ring Buffer Path
         for i in range(1):
+
             self.ringBufferAdc[i] >> self.dataWriter.getChannel(i+0)
             self.ringBufferAdc[i] >> self.adcRateDrop[i] >> self.adcProcessor[i]
             self.add(self.adcProcessor[i])
 
-        # Connect the rogue stream arrays: DAC Ring Buffer Path
-        for i in range(1):
+            self.ringBufferAdc[i] >> self.pvAdc[i]
+            self.add(self.pvAdc[i])
+
             self.ringBufferDac[i] >> self.dataWriter.getChannel(i+16)
             self.ringBufferDac[i] >> self.dacRateDrop[i] >> self.dacProcessor[i]
             self.add(self.dacProcessor[i])
+
+            self.ringBufferDac[i] >> self.pvDac[i]
+            self.add(self.pvDac[i])
 
         ##################################################################################
         ##                              EPICS Path
         ##################################################################################
 
         if self.epics_enable:
-
-            self.pvAdc = [rfsoc_utility.RingBufferProcessor(name=f'PvAdc[{i}]',sampleRate=2.032E+9,maxSize=4*2**9, liveDisplay=False) for i in range(1)]
-            self.pvDac = [rfsoc_utility.RingBufferProcessor(name=f'PvDac[{i}]',sampleRate=8.128E+9,maxSize=16*2**9,liveDisplay=False) for i in range(1)]
-
-            # Connect the rogue stream arrays: ADC/DAC Ring Buffer Path
-            for i in range(1):
-                self.ringBufferAdc[i] >> self.pvAdc[i]
-                self.add(self.pvAdc[i])
-                self.ringBufferDac[i] >> self.pvDac[i]
-                self.add(self.pvDac[i])
 
             self.pv_map = {
                 # AxiVersion variables

@@ -18,7 +18,7 @@ Root:
         BufferLength: 0x1FF
       SigGenLoader:
         enable: True
-        Amplitude: '[25000, 0, 0, 0]'
+        Amplitude: '[4000, 0, 0, 0]'
         Decay: '[20e-09, 20e-09, 20e-09, 20e-09]'
         Rise:  '[10e-09, 10e-09, 10e-09, 10e-09]'
         IncidentTime: '[10e-09, 200e-09, 250e-09, 500e-09]'

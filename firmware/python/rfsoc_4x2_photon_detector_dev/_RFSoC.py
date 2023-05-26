@@ -15,21 +15,20 @@ import surf.xilinx              as xil
 import rfsoc_4x2_photon_detector_dev as rfsoc
 
 class RFSoC(pr.Device):
-    def __init__(self,**kwargs):
+    def __init__(self,top_level='',**kwargs):
         super().__init__(**kwargs)
 
         self.add(socCore.AxiSocCore(
-            offset       = 0x0000_0000,
-            numDmaLanes  = 2,
-            # expand       = True,
+            offset      = 0x0000_0000,
+            numDmaLanes = 2,
         ))
 
         self.add(xil.RfDataConverter(
-            offset       = 0x9000_0000,
-            # expand       = True,
+            offset = 0x9000_0000,
         ))
 
         self.add(rfsoc.Application(
-            offset       = 0xA000_0000,
-            expand       = True,
+            offset    = 0xA000_0000,
+            top_level = top_level,
+            expand    = True,
         ))

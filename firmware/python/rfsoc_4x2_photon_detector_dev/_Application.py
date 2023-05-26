@@ -14,7 +14,7 @@ import axi_soc_ultra_plus_core.rfsoc_utility as rfsoc_utility
 import rfsoc_4x2_photon_detector_dev as rfsoc
 
 class Application(pr.Device):
-    def __init__(self,**kwargs):
+    def __init__(self,top_level='',**kwargs):
         super().__init__(**kwargs)
 
         self.add(rfsoc_utility.AppRingBuffer(
@@ -36,6 +36,7 @@ class Application(pr.Device):
         self.add(rfsoc.SigGenLoader(
             name      = 'SigGenLoader',
             DacSigGen = self.DacSigGen,
+            top_level = top_level,
             expand    = True,
         ))
 
@@ -57,6 +58,7 @@ class Application(pr.Device):
         @self.command(description  = 'Force a DAC signal generator trigger from software')
         def getWaveformBurst():
             if self.EnableSoftTrig.get():
+                self.SigGenLoader.LoadWaveform()
                 self.StartDacFlag.set(1)
                 self.StartDacFlag.set(0)
 

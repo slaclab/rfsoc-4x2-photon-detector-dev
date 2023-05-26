@@ -12,10 +12,12 @@ import pyrogue as pr
 
 import numpy as np
 import click
+import csv
 
 class SigGenLoader(pr.Device):
     def __init__(self,
             DacSigGen    = None,
+            top_level    = '',
             maxEvents    = 4,  # Max number of signal event that can be loaded
             ramWidth     = 9, # Must match RAM_ADDR_WIDTH_G config
             smplPerCycle = 16, # Must match SAMPLE_PER_CYCLE_G config
@@ -59,50 +61,89 @@ class SigGenLoader(pr.Device):
             value   = np.full(shape=maxEvents, fill_value=4.0E-6, dtype=np.float32, order='C'),
         ))
 
-        # @self.command(hidden=True)
-        @self.command()
+        self.add(pr.LocalVariable(
+            name        = 'RunMode',
+            description = 'True: cycle through previously recorded SiPM waveforms, False: calculated SiPM waveform',
+            mode        = 'RW',
+            value       = False,
+        ))
+
+        # Create empty arrays to fill
+        self.sipmWave = [np.zeros(shape=self._bufferLength, dtype=np.int16, order='C') for i in range(100)]
+
+        # Load the SiPM waveform data that was recorded by TargetX at 1GSPS but interpolated to 8GSPS
+        self.sipmIdx = 0
+        with open( f'{top_level}/config/SipmWave8GSPS.csv' if top_level!='' else 'config/SipmWave8GSPS.csv') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
+            for row in reader:
+                for smpl in range(1024):
+                    self.sipmWave[self.sipmIdx][smpl] = int(row[smpl])
+                self.sipmIdx += 1
+        self.sipmIdx = 0
+
+        @self.command(hidden=True)
         def LoadWaveform():
 
-            # Zero out the array
-            wavesform = np.zeros(shape=self._bufferLength, dtype=np.float32, order='C')
-
-            # Loop through the photons
-            for i in range(self._maxEvents):
-
-                # Get photon signal's parameters
-                A  = float(self.Amplitude.value(index=i))
-                B  = self.Decay.value(index=i)
-                C  = self.Rise.value(index=i)
-                T0 = self.IncidentTime.value(index=i)
+            if self.RunMode.value():
 
                 # Loop through the DAC's RAM depth
                 for x in range(self._bufferLength):
 
-                    # Calculate the time and delta time
-                    t = float(x)*self._timeBin
-                    deltaT = t-T0
+                    # Update only the shadow variable value (write performance reasons)
+                    self._DacSigGen.Waveform[0].set(value=int(self.sipmWave[self.sipmIdx][x]),index=x,write=False)
 
-                    # Check if time greater than incident time
-                    if (deltaT>0):
-                        # Calculate the waveform with superposition
-                        wavesform[x] += A*np.exp(-1.0*deltaT/B)*(1-np.exp(-1.0*deltaT/C))
+                # Push all shadow variables to hardware
+                self._DacSigGen.Waveform[0].write()
 
-                        # Check for overflow
-                        if (wavesform[x] > 32767.0):
-                            wavesform[x] = 32767.0
+                # Reset the FSM after loading the waveform
+                self._DacSigGen.Reset()
 
-                        # Check for underflow
-                        if (wavesform[x] < -32767.0):
-                            wavesform[x] = -32767.0
+                # Increment the index counter
+                self.sipmIdx = self.sipmIdx + 1
+                if self.sipmIdx==100:
+                    self.sipmIdx = 0
 
-            # Loop through the DAC's RAM depth
-            for x in range(self._bufferLength):
+            else:
+                # Zero out the array
+                wavesform = np.zeros(shape=self._bufferLength, dtype=np.float32, order='C')
 
-                # Update only the shadow variable value (write performance reasons)
-                self._DacSigGen.Waveform[0].set(value=int(wavesform[x]),index=x,write=False)
+                # Loop through the photons
+                for i in range(self._maxEvents):
 
-            # Push all shadow variables to hardware
-            self._DacSigGen.Waveform[0].write()
+                    # Get photon signal's parameters
+                    A  = float(self.Amplitude.value(index=i))
+                    B  = self.Decay.value(index=i)
+                    C  = self.Rise.value(index=i)
+                    T0 = self.IncidentTime.value(index=i)
 
-            # Reset the FSM after loading the waveform
-            self._DacSigGen.Reset()
+                    # Loop through the DAC's RAM depth
+                    for x in range(self._bufferLength):
+
+                        # Calculate the time and delta time
+                        t = float(x)*self._timeBin
+                        deltaT = t-T0
+
+                        # Check if time greater than incident time
+                        if (deltaT>0):
+                            # Calculate the waveform with superposition
+                            wavesform[x] += A*np.exp(-1.0*deltaT/B)*(1-np.exp(-1.0*deltaT/C))
+
+                            # Check for overflow
+                            if (wavesform[x] > 32767.0):
+                                wavesform[x] = 32767.0
+
+                            # Check for underflow
+                            if (wavesform[x] < -32767.0):
+                                wavesform[x] = -32767.0
+
+                # Loop through the DAC's RAM depth
+                for x in range(self._bufferLength):
+
+                    # Update only the shadow variable value (write performance reasons)
+                    self._DacSigGen.Waveform[0].set(value=int(wavesform[x]),index=x,write=False)
+
+                # Push all shadow variables to hardware
+                self._DacSigGen.Waveform[0].write()
+
+                # Reset the FSM after loading the waveform
+                self._DacSigGen.Reset()
